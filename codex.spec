@@ -5,8 +5,7 @@
 
 Name:           codex
 Version:        0.98.0
-Release:        2
-Release:        %autorelease
+Release:        3
 Summary:        OpenAI Codex command-line interface
 
 License:        Apache-2.0
