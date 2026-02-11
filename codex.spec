@@ -2,18 +2,25 @@
 %bcond_without bootstrap
 %global cargo_install_lib 0
 %global crate_dir codex-rs/cli
+%if 0%{?fedora}
+%global has_fedora_macros 1
+%else
+%global has_fedora_macros 0
+%endif
 
 Name:           codex
 Version:        0.98.0
-Release:        3
+Release:        4
 Summary:        OpenAI Codex command-line interface
 
 License:        Apache-2.0
 URL:            https://github.com/openai/codex
 Source0:        %{url}/archive/refs/tags/rust-v%{version}.tar.gz
 
+%if %{has_fedora_macros}
 BuildRequires:  cargo-rpm-macros >= 24
 BuildRequires:  rust-packaging
+%endif
 BuildRequires:  cargo
 BuildRequires:  rust
 BuildRequires:  pkgconfig(openssl)
@@ -22,16 +29,19 @@ BuildRequires:  git-core
 %description
 OpenAI Codex is a coding assistant that runs in your terminal.
 
+%if %{has_fedora_macros}
 %if %{without bootstrap}
 %generate_buildrequires
 cd %{crate_dir}
 %cargo_generate_buildrequires
+%endif
 %endif
 
 %prep
 %autosetup -n codex-rust-v%{version}
 cd %{crate_dir}
 
+%if %{has_fedora_macros}
 %if %{with bootstrap}
 # Bootstrap pulls crates from the network with mock --enable-network
 # because not all dependencies exist as Fedora crate RPMs yet
@@ -40,14 +50,30 @@ sed -i 's/offline = true/offline = false/' .cargo/config.toml
 %else
 %cargo_prep
 %endif
+%else
+%if %{with bootstrap}
+# Allow online crate fetches when bootstrap builds are requested.
+sed -i 's/offline = true/offline = false/' .cargo/config.toml || :
+%endif
+%endif
 
 %build
 cd %{crate_dir}
+%if %{has_fedora_macros}
 %cargo_build
+%else
+export CARGO_HOME=$PWD/.cargo-home
+mkdir -p "$CARGO_HOME"
+cargo build --release
+%endif
 
 %install
 cd %{crate_dir}
+%if %{has_fedora_macros}
 %cargo_install
+%else
+install -Dpm 0755 target/release/codex %{buildroot}%{_bindir}/codex
+%endif
 
 # Shell completion files are generated from the built binary.
 %{buildroot}%{_bindir}/codex completion bash > codex.bash
@@ -61,7 +87,11 @@ install -Dpm 0644 _codex %{buildroot}%{zsh_completions_dir}/_codex
 %check
 %if %{with check}
 cd %{crate_dir}
+%if %{has_fedora_macros}
 %cargo_test
+%else
+cargo test --release
+%endif
 %{buildroot}%{_bindir}/codex --help >/dev/null
 %endif
 
@@ -75,5 +105,8 @@ cd %{crate_dir}
 %{zsh_completions_dir}/_codex
 
 %changelog
+* Wed Feb 11 2026 Ernesto Martinez <me@ecomaikgolf.com> - 0.98.0-4
+- Gate Fedora Rust macros to Fedora; use plain cargo flow on EL-like chroots.
+
 * Wed Feb 11 2026 Ernesto Martinez <me@ecomaikgolf.com> - 0.98.0-1
 - Maintain explicit changelog entry for wider chroot compatibility.
