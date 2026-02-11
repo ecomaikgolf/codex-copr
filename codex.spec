@@ -5,6 +5,7 @@
 
 Name:           codex
 Version:        0.98.0
+Release:        2
 Release:        %autorelease
 Summary:        OpenAI Codex command-line interface
 
@@ -75,4 +76,5 @@ cd %{crate_dir}
 %{zsh_completions_dir}/_codex
 
 %changelog
-%autochangelog
+* Wed Feb 11 2026 Ernesto Martinez <me@ecomaikgolf.com> - 0.98.0-1
+- Maintain explicit changelog entry for wider chroot compatibility.
