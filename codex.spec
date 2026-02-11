@@ -10,7 +10,7 @@
 
 Name:           codex
 Version:        0.98.0
-Release:        4
+Release:        5
 Summary:        OpenAI Codex command-line interface
 
 License:        Apache-2.0
@@ -72,7 +72,7 @@ cd %{crate_dir}
 %if %{has_fedora_macros}
 %cargo_install
 %else
-install -Dpm 0755 target/release/codex %{buildroot}%{_bindir}/codex
+install -Dpm 0755 ../target/release/codex %{buildroot}%{_bindir}/codex
 %endif
 
 # Shell completion files are generated from the built binary.
