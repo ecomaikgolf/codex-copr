@@ -2,6 +2,9 @@
 %bcond_without bootstrap
 %global cargo_install_lib 0
 %global crate_dir codex-rs/cli
+%{!?bash_completions_dir:%global bash_completions_dir %{_datadir}/bash-completion/completions}
+%{!?fish_completions_dir:%global fish_completions_dir %{_datadir}/fish/vendor_completions.d}
+%{!?zsh_completions_dir:%global zsh_completions_dir %{_datadir}/zsh/site-functions}
 %if 0%{?fedora}
 %global has_fedora_macros 1
 %else
@@ -10,7 +13,7 @@
 
 Name:           codex
 Version:        0.98.0
-Release:        6
+Release:        7
 Summary:        OpenAI Codex command-line interface
 
 License:        Apache-2.0
@@ -98,6 +101,9 @@ install -Dpm 0644 _codex %{buildroot}%{zsh_completions_dir}/_codex
 %{zsh_completions_dir}/_codex
 
 %changelog
+* Thu Feb 12 2026 Ernesto Martinez <me@ecomaikgolf.com> - 0.98.0-7
+- Define fallback shell completion directory macros for non-Fedora chroots.
+
 * Wed Feb 11 2026 Ernesto Martinez <me@ecomaikgolf.com> - 0.98.0-4
 - Gate Fedora Rust macros to Fedora; use plain cargo flow on EL-like chroots.
 
